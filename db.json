@@ -1,0 +1,19 @@
+{
+  "products": [
+    {
+      "id": 1,
+      "name": "phynole",
+      "price": 80,
+      "desc": "joythi",
+      "image": "http://localhost:3000/uploads/1780823312781.webp"
+    },
+    {
+      "id": 2,
+      "name": "dish wash",
+      "price": 45,
+      "desc": "joythi",
+      "image": "http://localhost:3000/uploads/1780824044238.png"
+    }
+  ],
+  "orders": []
+}
