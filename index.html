@@ -48,7 +48,7 @@
         <hr style="border: 0; border-top: 1px solid #ddd; margin: 15px 0;">
         <h3>Delivery Details</h3>
         <input type="text" id="custName" class="input-field" placeholder="Full Name">
-        <input type="text" id="custPhone" class="input-field" placeholder="Mobile Number">
+        <input type="number" id="custPhone" class="input-field" placeholder="Mobile Number (10 digits)" oninput="if(this.value.length > 10) this.value = this.value.slice(0, 10);">
         <button class="loc-btn" onclick="getLiveLocation()">📍 Click to Fetch Live Location</button>
         <input type="text" id="custLoc" class="input-field" placeholder="Live Location GPS" readonly style="background: #f0f0f0;">
         <textarea id="custAddress" class="input-field" placeholder="Complete Address" rows="3"></textarea>
@@ -100,14 +100,35 @@
         document.getElementById('deliveryCharge').innerText = `₹${currentDelivery}`;
         document.getElementById('finalBill').innerText = `Total: ₹${itemsPriceTotal + currentDelivery}`;
     }
-
-    function getLiveLocation() {
+function getLiveLocation() {
         if (navigator.geolocation) {
-            document.getElementById('custLoc').value = "Fetching...";
+            document.getElementById('custLoc').value = "Fetching address...";
             navigator.geolocation.getCurrentPosition((position) => {
-                document.getElementById('custLoc').value = `${position.coords.latitude}, ${position.coords.longitude}`;
-            }, () => { alert("Location permission denied!"); });
+                let lat = position.coords.latitude;
+                let lon = position.coords.longitude;
+                document.getElementById('custLoc').value = lat + ", " + lon;
+
+                fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
+                .then(res => res.json())
+                .then(data => {
+                    if(data.display_name) {
+                        document.getElementById('custAddress').value = data.display_name;
+                    } else {
+                        alert("Address nahi mila, manual bharein.");
+                    }
+                })
+                .catch(() => {
+                    alert("Error: Address fetch nahi ho paya.");
+                });
+            }, () => { 
+                alert("Location permission denied!"); // Ye wahi line hai jo aap puch rahi thi
+                document.getElementById('custLoc').value = "";
+            });
+        } else {
+            alert("Geolocation support nahi hai.");
         }
+    }
+   
     }
 
     function confirmOrder() {
