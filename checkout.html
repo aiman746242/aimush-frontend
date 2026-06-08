@@ -35,9 +35,19 @@
     function sendWhatsApp() {
         let name = document.getElementById('name').value;
         let address = document.getElementById('address').value;
+
+        // Check karte hain ki naam aur address bhara hai ya nahi
+        if (name == "" || address == "") {
+            alert("Please enter your name and address!");
+            return;
+        }
+
         let message = "New Order!%0A%0AName: " + name + "%0AAddress: " + address;
-        // 91XXXXXxxxx ki jagah apna mobile number likhein
-        let url = "https://wa.me/7708338592?text=" + message; 
+        let url = "https://wa.me/917708338592?text=" + message; 
+        
+        // Order confirm hone ka message
+        alert("Thank you " + name + "! Your order is confirmed and will be sent on WhatsApp.");
+        
         window.open(url, '_blank');
     }
 </script>
