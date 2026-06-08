@@ -13,6 +13,7 @@
 
 <label>Address:</label>
 <textarea id="address" placeholder="Enter your address" style="width: 100%; padding: 10px; margin-bottom: 20px; display: block;"></textarea>
+<input type="number" id="phone" placeholder="Enter 10-digit number" oninput="if(this.value.length > 10) this.value = this.value.slice(0, 10);" style="width: 100%; padding: 10px; margin-bottom: 20px;">
 
 <button onclick="sendWhatsApp()" style="background: #25D366; color: white; padding: 15px; width: 100%; border: none; cursor: pointer; border-radius: 5px; font-size: 16px;">
     Confirm Order on WhatsApp
@@ -22,13 +23,15 @@
     function sendWhatsApp() {
         let name = document.getElementById('name').value;
         let address = document.getElementById('address').value;
-        if (name == "" || address == "") {
-            alert("Please enter your name and address!");
-            return;
+        let phone = document.getElementById('phone').value; // Ye line zaroori hai
+        if (name == "" || address == "" || phone == "") {
+        alert("Please fill all details!");
+        return;
         }
-        let message = "New Order!%0A%0AName: " + name + "%0AAddress: " + address;
-        let url = "https://wa.me/917708338592?text=" + message; 
-        alert("Thank you " + name + "! Your order is confirmed.");
-        window.open(url, '_blank');
+       let message = "New Order!%0A%0AName: " + name + "%0APhone: " + phone + "%0AAddress: " + address;
+    let url = "https://wa.me/917708338592?text=" + message; 
+    
+    alert("Thank you " + name + "! Your order is confirmed.");
+    window.open(url, '_blank');
     }
 </script>
