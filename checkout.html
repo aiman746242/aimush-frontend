@@ -1,33 +1,17 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Checkout - Aimush</title>
-</head>
-<body style="font-family: sans-serif; padding: 20px; background-color: #f4f4f4;">
+<h3>Checkout Page</h3>
 
-    <h1 style="text-align: center;">Checkout Page</h1>
-    
-    <div style="background: white; padding: 20px; border-radius: 10px; max-width: 500px; margin: auto;">
-        <form>
-            <label>Name:</label><br>
-            <input type="text" placeholder="Enter your name" style="width: 100%; padding: 8px; margin-bottom: 10px;"><br>
-            
-            <label>Address:</label><br>
-            <textarea placeholder="Enter your address" style="width: 100%; padding: 8px; margin-bottom: 20px;"></textarea>
-        </form>
+<div style="border: 1px solid #ccc; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+    <h4>Payment Section</h4>
+    <p>1. Cash on Delivery (COD) available.</p>
+    <p>2. Pay via UPI:</p>
+    <img src="qr.jpg" alt="QR Code" style="width:150px;">
+    <p>UPI Number: 9876543210</p>
+</div>
 
-        <div style="border: 2px solid #ddd; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
-            <h3>Payment Section</h3>
-            <p>1. <b>Cash on Delivery (COD)</b> available.</p>
-            <p>2. <b>Pay via UPI:</b></p>
-            <img src="qr.jpg" alt="QR Code" width="150px">
-            <p>UPI Number: 9876543210</p>
-        </div>
+<input type="text" id="name" placeholder="Enter your name" style="width: 100%; padding: 10px; margin-bottom: 10px;">
+<textarea id="address" placeholder="Enter your address" style="width: 100%; padding: 10px; margin-bottom: 20px;"></textarea>
 
-        <input type="text" id="name" placeholder="Enter your name" style="width: 100%; padding: 8px; margin-bottom: 10px;">
-<textarea id="address" placeholder="Enter your address" style="width: 100%; padding: 8px; margin-bottom: 20px;"></textarea>
-
-<button onclick="sendWhatsApp()" style="background: #25D366; color: white; padding: 15px; width: 100%; border: none; cursor: pointer; border-radius: 5px;">
+<button onclick="sendWhatsApp()" style="background: #25D366; color: white; padding: 15px; width: 100%; border: none; cursor: pointer; border-radius: 5px; font-size: 16px;">
     Confirm Order on WhatsApp
 </button>
 
@@ -36,7 +20,6 @@
         let name = document.getElementById('name').value;
         let address = document.getElementById('address').value;
 
-        // Check karte hain ki naam aur address bhara hai ya nahi
         if (name == "" || address == "") {
             alert("Please enter your name and address!");
             return;
@@ -45,13 +28,7 @@
         let message = "New Order!%0A%0AName: " + name + "%0AAddress: " + address;
         let url = "https://wa.me/917708338592?text=" + message; 
         
-        // Order confirm hone ka message
-        alert("Thank you " + name + "! Your order is confirmed and will be sent on WhatsApp.");
-        
+        alert("Thank you " + name + "! Your order is confirmed.");
         window.open(url, '_blank');
     }
 </script>
-    </div>
-
-</body>
-</html>
