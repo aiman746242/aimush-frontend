@@ -111,6 +111,7 @@ function getLiveLocation() {
                 fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
                 .then(res => res.json())
                 .then(data => {
+                    console.log(data); // YE LINE ADD KAREIN
                     if(data.display_name) {
                         document.getElementById('custAddress').value = data.display_name;
                     } else {
