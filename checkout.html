@@ -24,9 +24,23 @@
             <p>UPI Number: 9876543210</p>
         </div>
 
-        <button style="background: green; color: white; padding: 15px; width: 100%; border: none; cursor: pointer; border-radius: 5px;">
-            Confirm Order
-        </button>
+        <input type="text" id="name" placeholder="Enter your name" style="width: 100%; padding: 8px; margin-bottom: 10px;">
+<textarea id="address" placeholder="Enter your address" style="width: 100%; padding: 8px; margin-bottom: 20px;"></textarea>
+
+<button onclick="sendWhatsApp()" style="background: #25D366; color: white; padding: 15px; width: 100%; border: none; cursor: pointer; border-radius: 5px;">
+    Confirm Order on WhatsApp
+</button>
+
+<script>
+    function sendWhatsApp() {
+        let name = document.getElementById('name').value;
+        let address = document.getElementById('address').value;
+        let message = "New Order!%0A%0AName: " + name + "%0AAddress: " + address;
+        // 91XXXXXxxxx ki jagah apna mobile number likhein
+        let url = "https://wa.me/7708338592?text=" + message; 
+        window.open(url, '_blank');
+    }
+</script>
     </div>
 
 </body>
