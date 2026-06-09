@@ -125,20 +125,30 @@
         }
     }
 
-    function confirmOrder() {
+   function confirmOrder() {
         let name = document.getElementById('custName').value.trim();
         let phone = document.getElementById('custPhone').value.trim();
         let address = document.getElementById('custAddress').value.trim();
-        if(itemsPriceTotal === 0 || !name || !phone || !address) return alert("Details bharein!");
+        
+        // Check karein ki sab bhara hai ya nahi
+        if(Object.keys(cart).length === 0 || !name || !phone || !address) {
+            return alert("Bhaiya, pehle saaman chuno aur apni details toh sahi se bhar do!");
+        }
 
         let totalBill = itemsPriceTotal + DELIVERY_FEE;
-        alert("Order Summary Ready!");
         
-        // WhatsApp par order bhejne ka code
+        // WhatsApp par order bhejne ka code (yahan apna number daalein)
         let itemsText = Object.keys(cart).map(k => `• ${k} (Qty: ${cart[k].qty})`).join('%0A');
-        let whatsappURL = `https://wa.me/91XXXXXXXXXX?text=*🛍️ NEW ORDER* %0A*Name:* ${name}%0A*Total:* ₹${totalBill}%0A*Items:*%0A${itemsText}`;
+        
+        // 91XXXXXXXXXX ki jagah apna 10-digit WhatsApp number daalein
+        let whatsappURL = `https://wa.me/917708338592?text=*🛍️ NEW ORDER*%0A%0A*Name:* ${name}%0A*Phone:* ${phone}%0A*Address:* ${address}%0A%0A*Items:*%0A${itemsText}%0A%0A*Total Bill:* ₹${totalBill}`;
+        
         window.open(whatsappURL, '_blank');
-        cart = {}; renderCart();
+        
+        // Order ke baad cart saaf kar dein
+        cart = {}; 
+        renderCart();
+        alert("Order WhatsApp par bheja gaya!");
     }
 </script>
 </body>
