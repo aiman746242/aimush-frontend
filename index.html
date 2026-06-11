@@ -4,13 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aimush Enterprises</title>
-    <link rel="manifest" href="./manifest.json">
     <style>
         * { box-sizing: border-box; }
         body { font-family: 'Segoe UI', Arial, sans-serif; background: #eaeded; margin: 0; padding: 20px; }
-        header { background: #131921; color: white; text-align: center; padding: 25px; border-radius: 4px; margin-bottom: 20px; border-bottom: 4px solid #febd69; }
+        header { background: #131921; color: white; text-align: center; padding: 25px; border-radius: 4px; border-bottom: 4px solid #febd69; }
         header h1 { color: #febd69; margin: 0; font-size: 2.5rem; letter-spacing: 1px; }
         header p { margin: 5px 0 0 0; color: #ccc; font-style: italic; }
+        
+        /* SERVER STATUS BAR */
+        #serverStatus { text-align: center; padding: 10px; font-weight: bold; margin: 15px 0; border-radius: 4px; transition: all 0.3s ease; }
+        
         .container { display: flex; flex-wrap: wrap; gap: 20px; }
         .products-section { flex: 3; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
         .product-card { background: white; padding: 15px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); text-align: center; position: relative; }
@@ -24,14 +27,25 @@
         .charge-txt { font-size: 0.95rem; color: #565959; margin: 5px 0; }
         .loc-btn { background: #e7f3ff; color: #0064d2; border: 1px solid #0064d2; padding: 6px; margin-bottom: 10px; font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 0.85rem; width: 100%; }
         .loc-btn:hover { background: #dbebff; }
+        
+        /* ADMIN STYLES */
+        .admin-section { display: none; background: white; padding: 25px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-top: 40px; border-top: 5px solid #232f3e; }
+        .admin-grid { display: flex; flex-wrap: wrap; gap: 30px; }
+        .admin-box { flex: 1; min-width: 300px; background: #f7f7f7; padding: 15px; border-radius: 4px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 0.9rem; }
+        th { background-color: #232f3e; color: white; }
+        .admin-login-trigger { background: transparent; color: #aaa; border: none; font-size: 0.8rem; cursor: pointer; margin-top: 30px; float: right; }
     </style>
 </head>
 <body>
 
 <header>
     <h1>Aimush Enterprises 🛒</h1>
-    <p>Apni Cleaning Ki Online Dukaan</p>
+    <p>Apni Cleaning Ki Online Dukaan - High Quality Products</p>
 </header>
+
+<div id="serverStatus" style="background: #ffdbdb; color: #a94442;">🔄 Server se connect karne ki koshish kar rahe hain...</div>
 
 <div class="container">
     <div id="productsContainer" class="products-section"></div>
@@ -40,48 +54,109 @@
         <h2 style="margin-top:0; border-bottom: 1px solid #ddd; padding-bottom: 5px;">Your Basket</h2>
         <div id="cartDetails"><p style="color:#565959;">Basket khali hai.</p></div>
         
-        <div style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
+        <div id="billBreakdown" style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
             <div class="charge-txt">Items Total: <span id="itemsTotal">₹0</span></div>
             <div class="charge-txt">Delivery Charge: <span id="deliveryCharge">₹0</span></div>
-            <h3 id="finalBill" style="color:#b12704; margin:10px 0 0 0;">Total: ₹0</h3>
+            <h3 id="finalBill" style="color:#b12704; margin:10px 0 0 0;">Total Order Amount: ₹0</h3>
         </div>
         
         <hr style="border: 0; border-top: 1px solid #ddd; margin: 15px 0;">
+        
         <h3>Delivery Details</h3>
         <input type="text" id="custName" class="input-field" placeholder="Full Name">
-        <input type="number" id="custPhone" class="input-field" placeholder="Mobile Number (10 digits)" oninput="if(this.value.length > 10) this.value = this.value.slice(0, 10);">
+        <input type="text" id="custPhone" class="input-field" placeholder="Mobile Number">
+        
         <button class="loc-btn" onclick="getLiveLocation()">📍 Click to Fetch Live Location</button>
-        <input type="text" id="custLoc" class="input-field" placeholder="Live Location GPS" readonly style="background: #f0f0f0;">
-        <textarea id="custAddress" class="input-field" placeholder="Complete Address" rows="3"></textarea>
-        <a href="checkout.html" class="btn" style="background:#a94442; color:white; border:none; padding: 15px 30px; text-decoration:none; display:inline-block; border-radius:5px;">Proceed to Checkout</a>
+        <input type="text" id="custLoc" class="input-field" placeholder="Live Location GPS (Automatic)" readonly style="background: #f0f0f0; font-weight: bold; color: #333;">
+        
+        <textarea id="custAddress" class="input-field" placeholder="Complete Address (House No, Building, Landmark)" rows="3"></textarea>
+        
+        <button class="btn" style="background:#a94442; color:white; border:none; margin-top: 10px;" onclick="confirmOrder()">Proceed to Checkout</button>
+    </div>
+</div>
+
+<button class="admin-login-trigger" onclick="adminLogin()">Admin Portal 🔐</button>
+
+<div id="adminPanel" class="admin-section">
+    <h2 style="color:#232f3e; margin-top:0; border-bottom:2px solid #232f3e; padding-bottom:5px;">Aimush Enterprises - Dashboard</h2>
+    <div class="admin-grid">
+        <div class="admin-box">
+            <h3>Gallery Se Photo Upload Karein 🖼️</h3>
+            <input type="text" id="pName" class="input-field" placeholder="Product Name">
+            <input type="number" id="pPrice" class="input-field" placeholder="Price (₹)">
+            <input type="text" id="pDesc" class="input-field" placeholder="Description">
+            <input type="file" id="pImgFile" accept="image/*" class="input-field" style="border:none; padding:5px 0;">
+            <button class="btn" style="background:#232f3e; color:white;" onclick="uploadProductWithImage()">Shop Par Live Karein</button>
+        </div>
+
+        <div class="admin-box" style="flex:2;">
+            <h3>Orders Received <button onclick="loadAdminOrders()" style="cursor:pointer; font-size:0.85rem;">Refresh 🔄</button></h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Customer Details</th>
+                        <th>GPS Location</th>
+                        <th>Address</th>
+                        <th>Items</th>
+                        <th>Total Bill</th>
+                    </tr>
+                </thead>
+                <tbody id="adminTableBody"></tbody>
+            </table>
+        </div>
     </div>
 </div>
 
 <script>
     let cart = {}; 
     let itemsPriceTotal = 0;
-    const DELIVERY_FEE = 40;
-    // Yahan aapka SheetDB ka API URL hai
-    const SHEETDB_URL = 'https://sheetdb.io/api/v1/d14grqc9wyngq';
+    const DELIVERY_FEE = 40; 
+    const SERVER_URL = 'http://localhost:3000';
 
     window.onload = function() { loadShopProducts(); };
 
     function loadShopProducts() {
-        fetch(SHEETDB_URL)
-        .then(res => res.json())
+        const statusDiv = document.getElementById('serverStatus');
+        
+        fetch(`${SERVER_URL}/api/products`)
+        .then(res => {
+            if(!res.ok) throw new Error("Network response was not ok");
+            return res.json();
+        })
         .then(products => {
+            // Agar server se data successfully mil gaya
+            statusDiv.style.background = "#e7f3ff";
+            statusDiv.style.color = "#0064d2";
+            statusDiv.innerText = "🟢 Aimush Server Connected! Products loaded successfully.";
+
             let html = '';
-            products.forEach(p => {
-                // Dhyaan dein: p.Name, p.Price, p.ImageLink - ye aapki Sheet ke headers hone chahiye
-                html += `<div class="product-card">
-                        <img class="product-img" src="${p.ImageLink}">
-                        <div class="product-title">${p.Name}</div>
-                        <p style="color:#565959; font-size:0.85rem;">${p.Category}</p>
-                        <div class="product-price">₹${p.Price}</div>
-                        <button class="btn" onclick="addItem('${p.Name}', ${p.Price})">Add to Basket</button>
+            if(products.length === 0) {
+                html = '<p style="grid-column: 1/-1; text-align:center; color:#565959; font-weight:bold;">Shop par abhi koi product nahi hai. Admin panel se add karein!</p>';
+            } else {
+                products.forEach(p => {
+                    // onerror handle karega agar koi image path tuta hua ho toh default photo dikhayega
+                    html += `<div class="product-card">
+                        <img class="product-img" src="${p.image}" alt="${p.name}" onerror="this.src='https://images.unsplash.com/photo-1563453392212-326f5e854473?w=400'">
+                        <div class="product-title">${p.name}</div>
+                        <p style="color:#565959; font-size:0.85rem; margin:5px 0;">${p.desc}</p>
+                        <div class="product-price">₹${p.price}</div>
+                        <button class="btn" onclick="addItem('${p.name}', ${p.price})">Add to Basket</button>
                     </div>`;
-            });
+                });
+            }
             document.getElementById('productsContainer').innerHTML = html;
+        })
+        .catch(err => {
+            // Agar backend band hai ya koi error hai
+            statusDiv.style.background = "#ffdbdb";
+            statusDiv.style.color = "#a94442";
+            statusDiv.innerText = "🔴 Backend Server Se Connection Nahi Hua! Apne terminal me 'node server.js' chalayein.";
+            
+            document.getElementById('productsContainer').innerHTML = `
+                <div style="grid-column: 1/-1; text-align:center; padding:20px; color:#a94442; font-weight:bold;">
+                    Server Not Reachable. Kripya check karein ki aapka Node.js backend run kar raha hai ya nahi.
+                </div>`;
         });
     }
 
@@ -97,58 +172,100 @@
             itemsPriceTotal += cost; 
             html += `<p><strong>${item}</strong> x ${cart[item].qty} (₹${cost})</p>`; 
         }
+        
         document.getElementById('cartDetails').innerHTML = html || '<p style="color:#565959;">Basket khali hai.</p>';
         document.getElementById('itemsTotal').innerText = `₹${itemsPriceTotal}`;
+        
         let currentDelivery = itemsPriceTotal > 0 ? DELIVERY_FEE : 0;
         document.getElementById('deliveryCharge').innerText = `₹${currentDelivery}`;
-        document.getElementById('finalBill').innerText = `Total: ₹${itemsPriceTotal + currentDelivery}`;
+        
+        let finalAmount = itemsPriceTotal + currentDelivery;
+        document.getElementById('finalBill').innerText = `Total Order Amount: ₹${finalAmount}`;
     }
 
     function getLiveLocation() {
         if (navigator.geolocation) {
-            document.getElementById('custLoc').value = "Fetching address...";
-            navigator.geolocation.getCurrentPosition((position) => {
-                let lat = position.coords.latitude;
-                let lon = position.coords.longitude;
-                document.getElementById('custLoc').value = lat + ", " + lon;
-
-                fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
-                .then(res => res.json())
-                .then(data => {
-                    if(data.display_name) {
-                        document.getElementById('custAddress').value = data.display_name;
-                    } else {
-                        alert("Address nahi mila, manual bharein.");
-                    }
-                });
-            }, () => { alert("Location permission denied!"); document.getElementById('custLoc').value = ""; });
+            document.getElementById('custLoc').value = "Fetching location... please wait...";
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    let lat = position.coords.latitude;
+                    let lon = position.coords.longitude;
+                    document.getElementById('custLoc').value = `${lat}, ${lon}`;
+                    alert("Location successfully detected!");
+                },
+                (error) => {
+                    alert("Location access denied! Kripya settings me location share on karein.");
+                    document.getElementById('custLoc').value = "Access Denied";
+                }
+            );
+        } else {
+            alert("Aapka browser live location support nahi karta.");
         }
     }
 
-   function confirmOrder() {
+    function confirmOrder() {
         let name = document.getElementById('custName').value.trim();
         let phone = document.getElementById('custPhone').value.trim();
+        let gpsLocation = document.getElementById('custLoc').value.trim();
         let address = document.getElementById('custAddress').value.trim();
         
-        // Check karein ki sab bhara hai ya nahi
-        if(Object.keys(cart).length === 0 || !name || !phone || !address) {
-            return alert("Bhaiya, pehle saaman chuno aur apni details toh sahi se bhar do!");
-        }
+        if(itemsPriceTotal === 0 || !name || !phone || !address) return alert("Poori details bharein!");
+        
+        let totalBillWithDelivery = itemsPriceTotal + DELIVERY_FEE;
 
-        let totalBill = itemsPriceTotal + DELIVERY_FEE;
-        
-        // WhatsApp par order bhejne ka code (yahan apna number daalein)
-        let itemsText = Object.keys(cart).map(k => `• ${k} (Qty: ${cart[k].qty})`).join('%0A');
-        
-        // 91XXXXXXXXXX ki jagah apna 10-digit WhatsApp number daalein
-        let whatsappURL = `https://wa.me/917708338592?text=*🛍️ NEW ORDER*%0A%0A*Name:* ${name}%0A*Phone:* ${phone}%0A*Address:* ${address}%0A%0A*Items:*%0A${itemsText}%0A%0A*Total Bill:* ₹${totalBill}`;
-        
-        window.open(whatsappURL, '_blank');
-        
-        // Order ke baad cart saaf kar dein
-        cart = {}; 
-        renderCart();
-        alert("Order WhatsApp par bheja gaya!");
+        fetch(`${SERVER_URL}/api/order`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, phone, gpsLocation, address, items: cart, total: totalBillWithDelivery })
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert(`Aimush Enterprises Order Placed! ID: #${data.orderId}`);
+            cart = {}; renderCart();
+            document.getElementById('custName').value = ''; document.getElementById('custPhone').value = ''; document.getElementById('custAddress').value = ''; document.getElementById('custLoc').value = '';
+        });
+    }
+
+    function adminLogin() {
+        if (prompt("Enter Aimush Security Key:") === "aiman123") {
+            document.getElementById('adminPanel').style.display = 'block';
+            loadAdminOrders();
+        }
+    }
+
+    function uploadProductWithImage() {
+        let name = document.getElementById('pName').value.trim();
+        let price = document.getElementById('pPrice').value.trim();
+        let desc = document.getElementById('pDesc').value.trim();
+        let fileInput = document.getElementById('pImgFile');
+        if(!name || !price) return alert("Fields are empty!");
+
+        let formData = new FormData();
+        formData.append('name', name); formData.append('price', price); formData.append('desc', desc);
+        if(fileInput.files[0]) formData.append('productImage', fileInput.files[0]);
+
+        fetch(`${SERVER_URL}/api/admin/add-product`, { method: 'POST', body: formData })
+        .then(res => res.json()).then(data => { alert(data.message); loadShopProducts(); });
+    }
+
+    function loadAdminOrders() {
+        fetch(`${SERVER_URL}/api/admin/orders`).then(res => res.json()).then(orders => {
+            let html = '';
+            orders.forEach(o => {
+                let itemsText = Object.keys(o.items).map(k => `${k}(${o.items[k].qty})`).join(', ');
+                let mapLink = o.gpsLocation && o.gpsLocation !== "Access Denied" ? `<a href="https://www.google.com/maps?q=${o.gpsLocation}" target="_blank" style="color: blue; font-weight: bold;">📍 Open in Map</a>` : "Not Available";
+                
+                html += `<tr>
+                    <td>#${o.id}</td>
+                    <td><b>${o.name}</b><br>${o.phone}</td>
+                    <td>${o.gpsLocation ? o.gpsLocation : 'No GPS'}<br>${mapLink}</td>
+                    <td>${o.address}</td>
+                    <td>${itemsText}</td>
+                    <td style="color:#b12704; font-weight:bold;">₹${o.total}</td>
+                </tr>`;
+            });
+            document.getElementById('adminTableBody').innerHTML = html || '<tr><td colspan="6">No orders</td></tr>';
+        });
     }
 </script>
 </body>
